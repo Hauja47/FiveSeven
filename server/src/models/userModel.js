@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const hashPassword = require('../helpers/hashPassword');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -12,6 +13,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true
     },
     firstname: {
         type: String,
@@ -37,5 +39,7 @@ const userSchema = new mongoose.Schema({
         normalization: true
     }
 });
+
+userSchema.pre('save', hashPassword);
 
 module.exports = mongoose.model("User", userSchema);
