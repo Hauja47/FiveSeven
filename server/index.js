@@ -1,12 +1,10 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, './src/.env') });
+require('dotenv').config();
 
 const mongoose = require("mongoose");
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
-
-console.log(process.env);
 
 mongoose.connect(process.env.DB_URL).then(() => {
     console.log(`CORS-enabled web server listening on port: ${process.env.PORT}`)
