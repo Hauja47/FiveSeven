@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# Spotify Clone Front-End
+A front-end clone project of the Spotify web player. The project was created using the create-react-app CLI. The app is meant to work in conjunction with an authorization/authenication server found at this [repo](https://github.com/JL978/spotify-clone-server).
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Table of Contents
+- [Description](#description)
+- [Motivation](#motivation)
+- [Tech/Framework Used](#techframework-used)
+- [Installation](#installation)
+- [Architechture](#architecture)
 
-## Available Scripts
+## Description
+A clone web application using the create-react-app. The app comsumes data from the Spotify API and tries to mimic the UI and front-end behaviours of the official [Spotify web player](https://open.spotify.com/) as much as possible.
 
-In the project directory, you can run:
+![App Screen Shot](https://github.com/JL978/spotify-clone-client/blob/master/demo/FrontPage.png)
+*The main screen (non-authenicated) of the app*
 
-### `npm start`
+Like the official app, if a user is not authenticated, they can still browse and look up different playlists, albums, artists and users. Non authenticated users cannot control the player and go to certain protected routes - if they tried to navigate to these routes, a tooltip pops up prompting login.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+![Non-authenticated app demonstration](https://github.com/JL978/spotify-clone-client/blob/master/demo/NonAuthed.gif)
+*Non-authenticated app demonstration*
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+If a user login to a premium account (due to the limitation of the available API, free accounts cannot do much), user can access certain routes to their own playlists, saved items, etc. and use the app as a remote control player to any playing official (no direct streaming is available through the API)
 
-### `npm test`
+![Authenticated app demonstration](https://github.com/JL978/spotify-clone-client/blob/master/demo/Authed.gif)
+*Authenticated app demonstration*
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+![Remote player demonstration](https://github.com/JL978/spotify-clone-client/blob/master/demo/RemotePlay.gif)
+*Remote player demonstration*
 
-### `npm run build`
+## Motivation
+This project was created by me mainly to teach myself React development. Since the point of this project was not to make great UI/UX design choices, I chose to create a clone of a well established  product as to shorten my learning time and not to focus on the wrong thing. Since I am already a heavy Spotify user and therefore I thought it would be an interesting challenge to tackle. 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The majority of the react components and logic was written from scratch by myself. I chose not to use existing component libraries because that forces me to both get a really deep understanding of React and get as much practice as I could with React.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech/Framework Used
+* React (create-react-app CLI)
+* react-router-dom
+* axios
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## Installation
+This project requires [node](http://nodejs.org) and [npm](https://npmjs.com) installed globally. 
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Clone the repository to a directory of your choosing
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```sh
+$ git clone https://github.com/JL978/spotify-clone-client.git
+```
+Navigate into spotify-clone-client and install the necessary packages
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```sh
+$ npm install 
+```
+To start up the app locally
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```sh
+$ npm start
+```
 
-## Learn More
+Additionally, this project also requires you to clone and run the server code from this [repo](https://github.com/JL978/spotify-clone-server) to work properly.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Architecture
+### Authentication and Authorization
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+As mentioned from before this app needs to be used with a authentication server with the code provided on another [repo](https://github.com/JL978/spotify-clone-server), you can navigate there to learn more about how the server works. On this end, in order to be logged in, the app must have 2 things: a refresh_key stored in cookie and an access_key stored in memory. When there these values are present, the user is effectively "logged in" and therefore the app will render the "logged in" version with the user's personal info. The benefit of doing authorization this way is that we are not exposed to XSRF by avoiding having the access_key stored in cookie while also keeping the user logged in if they refresh the app through the following flow.
 
-### Code Splitting
+[Authorization flow](demo/auth.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+As far as I know, this is the safest way to handle keys in OAuth flow.  
 
-### Analyzing the Bundle Size
+### Custom hooks and utilities
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+One of the more interesting functionality from this project is the infinite scroll on playlists and search results. This feature was made using custom hooks and integration with the Spotify API pagination system.
 
-### Making a Progressive Web App
+The hooks was named useInfiScroll and useTokenScroll, they are both effectively the same with the useTokenScroll requesting for private information with the access token. The hook make use of useState, useRef, useCallback and the IntersectionObserver API. It takes in a setList (from a useState hook) function from the parent component (which is use internally to set the paginated list) and return a useCallback ref to be passed to the last element of the list and a setNext to store the next paginated uri during initial setup. The challenge of using ref here is the use of functional component in this project which one cannot simply pass a ref parameter to. The solution to this is using React.forwardRef on the child component. One thing I would do different next time is to use [Composition as much as possible instead of Inheritance](https://reactjs.org/docs/composition-vs-inheritance.html) so that I don't have to pass refs through multiple component levels.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Another interesting feature of this app is the live search feature where search results are updated as the user type into the search box. In doing this, the app is making a new request to the API everytime a new letter is entered. However, sometimes typing can be a faster than the request is able to finish and the request may become stale as the user type. Therefore, being able to cancel the request on the fly is needed.  
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[More coming soon...]

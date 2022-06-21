@@ -1,18 +1,32 @@
 {
-  "name": "server",
+  "name": "spotify-frontend-clone",
   "version": "1.0.0",
-  "description": "Backend of FiveSeven",
+  "description": "Clone of Spotify Front-End using ReactJS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JL978/Spotify-FrontEnd-Clone.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JL978/Spotify-FrontEnd-Clone/issues"
+  },
+  "homepage": "https://github.com/JL978/Spotify-FrontEnd-Clone#readme",
   "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.0",
-    "express": "^4.18.1",
-    "mongodb": "^4.5.0",
-    "mongoose": "^6.3.3"
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "lyrics-finder": "^21.7.0",
+    "nodemon": "^2.0.7",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2"
   }
 }
